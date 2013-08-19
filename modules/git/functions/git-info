@@ -164,7 +164,7 @@ function git-info {
   typeset -gA git_info
 
   # Return if not inside a Git repository work tree.
-  if ! is-true "$(git rev-parse --is-inside-work-tree 2> /dev/null)"; then
+  if is-false "$(git rev-parse --is-inside-work-tree 2> /dev/null)"; then
     return 1
   fi
 
@@ -180,7 +180,7 @@ function git-info {
   fi
 
   # Return if git-info is disabled.
-  if ! is-true "${$(git config --bool prompt.showinfo):-true}"; then
+  if is-false "${$(git config --bool prompt.showinfo):-true}"; then
     return 1
   fi
 
