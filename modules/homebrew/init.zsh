@@ -1,6 +1,7 @@
 #
 # Defines Homebrew aliases.
 #
+
 # Authors:
 #   Sorin Ionescu <sorin.ionescu@gmail.com>
 #
@@ -23,3 +24,6 @@ alias brewu='brew upgrade'
 alias brewU='brew update && brew upgrade'
 alias brewx='brew remove'
 
+if (( $+commands[brew-pip] )); then
+	export PYTHONPATH=$(brew --prefix)/lib/python2.7/site-packages:$PYTHONPATH
+fi

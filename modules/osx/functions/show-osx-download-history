@@ -1,0 +1,10 @@
+#
+# Shows the Mac OS X download history.
+#
+# Authors:
+#   Sorin Ionescu <sorin.ionescu@gmail.com>
+#
+
+local db="$HOME/Library/Preferences/com.apple.LaunchServices.QuarantineEventsV"*
+sqlite3 "$db" 'SELECT LSQuarantineDataURLString FROM LSQuarantineEvent'
+

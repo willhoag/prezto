@@ -1,0 +1,9 @@
+local plist="$HOME/Library/LaunchAgents/homebrew.mxcl.tor.plist"
+if pidof 'tor' &> /dev/null; then
+  launchctl unload -w "$plist"
+  launchctl load -w "$plist"
+  return 0
+else
+  return 1
+fi
+
