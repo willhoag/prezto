@@ -23,11 +23,17 @@ may conflict with shell scripts.
 rbenv
 -----
 
-An alternative RVM is to use [rbenv][3], which allows for switching between multiple,
-isolated Ruby installations in the home directory.
+An alternative RVM is to use [rbenv][3], which allows for switching between
+multiple, isolated Ruby installations in the home directory.
 
 While it is not as feature rich as RVM, it is not loaded into the shell and is
 not known to cause conflicts with shell scripts.
+
+chruby
+------
+
+Yet another alternative is [chruby][6], which is simpler than both RVM and
+rbenv.
 
 Bundler
 -------
@@ -86,4 +92,4 @@ Authors
 [3]: https://github.com/sstephenson/rbenv
 [4]: http://gembundler.com
 [5]: https://github.com/sorin-ionescu/prezto/issues
-
+[6]: https://github.com/postmodern/chruby
