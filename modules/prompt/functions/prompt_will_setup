@@ -1,0 +1,186 @@
+# Need to:
+# Move time up to the prompt level
+# Make a better prompt_git with my old prompt
+
+# Load dependencies.
+pmodload 'helper'
+
+CURRENT_BG='NONE'
+SEGMENT_SEPARATOR='⮀'
+
+# Begin a segment
+# Takes two arguments, background and foreground. Both can be omitted,
+# rendering default background/foreground.
+prompt_segment() {
+  local bg fg
+  [[ -n $1 ]] && bg="%K{$1}" || bg="%k"
+  [[ -n $2 ]] && fg="%F{$2}" || fg="%f"
+  if [[ $CURRENT_BG != 'NONE' && $1 != $CURRENT_BG ]]; then
+    echo -n " %{$bg%F{$CURRENT_BG}%}$SEGMENT_SEPARATOR%{$fg%} "
+  else
+    echo -n "%{$bg%}%{$fg%} "
+  fi
+  CURRENT_BG=$1
+  [[ -n $3 ]] && print -Pn $3
+}
+
+prompt_segment_block() {
+  local bg fg
+  [[ -n $1 ]] && bg="%K{$1}" || bg="%k"
+  [[ -n $2 ]] && fg="%F{$2}" || fg="%f"
+  if [[ $CURRENT_BG != 'NONE' && $1 != $CURRENT_BG ]]; then
+    echo -n " %{$bg%F{$CURRENT_BG}%}%{$fg%} "
+  else
+    echo -n "%{$bg%}%{$fg%} "
+  fi
+  CURRENT_BG=$1
+  [[ -n $3 ]] && echo -n $3
+}
+
+# Context: user@hostname (who am I and where am I)
+prompt_context() {
+  local user=`whoami`
+ 
+  if [[ "$user" != "$DEFAULT_USER" || -n "$SSH_CLIENT" ]]; then
+    prompt_segment_block black default "%(!.%{%F{yellow}%}.)$user@%m"
+  fi
+}
+
+# Status:
+# - was there an error
+# - am I root
+# - are there background jobs?
+prompt_status() {
+  local symbols
+  symbols=()
+  [[ $RETVAL -ne 0 ]] && symbols+="%{%F{red}%}×"
+  [[ $UID -eq 0 ]] && symbols+="%{%F{yellow}%}⚡"
+  [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+="%{%F{cyan}%}⚙"
+ 
+  [[ -n "$symbols" ]] && prompt_segment_block black default "$symbols"
+}
+
+
+# End the prompt, closing any open segments
+prompt_end() {
+  if [[ -n $CURRENT_BG ]]; then
+    echo -n " %{%k%F{$CURRENT_BG}%}$SEGMENT_SEPARATOR"
+  else
+    echo -n "%{%k%}"
+  fi
+  echo -n "%{%f%}"
+  CURRENT_BG=''
+}
+
+prompt_dir() {
+  prompt_segment_block blue black '%~'
+}
+
+prompt_virtualenv() {
+    [ $VIRTUAL_ENV ] && prompt_segment_block cyan black "`basename $VIRTUAL_ENV`"
+}
+
+prompt_git() {
+  if $git_status; then
+    if [[ $git_info[clean] == 'true' ]]; then
+      prompt_segment green black '${(e)git_info[prompt]} ${git_info[status]}'
+    else
+      prompt_segment yellow black '${(e)git_info[prompt]} ${git_info[status]}'
+    fi
+  fi
+}
+
+build_prompt() {
+  RETVAL=$?
+  prompt_virtualenv
+  prompt_status
+  prompt_context
+  prompt_dir
+  prompt_git
+  prompt_end
+}
+
+start_time=$SECONDS
+function prompt_will_preexec {
+  start_time=$SECONDS
+}
+
+function calc_elapsed_time {
+  if [[ $timer_result -ge 3600 ]]; then
+    let "timer_hours = $timer_result / 3600"
+    let "remainder = $timer_result % 3600"
+    let "timer_minutes = $remainder / 60"
+    let "timer_seconds = $remainder % 60"
+    print -P "%B%F{red}>>> elapsed time ${timer_hours}h${timer_minutes}m${timer_seconds}s%b"
+  elif [[ $timer_result -ge 60 ]]; then
+    let "timer_minutes = $timer_result / 60"
+    let "timer_seconds = $timer_result % 60"
+    print -P "%B%F{yellow}>>> elapsed time ${timer_minutes}m${timer_seconds}s%b"
+  elif [[ $timer_result -gt 10 ]]; then
+    print -P "%B%F{green}>>> elapsed time ${timer_result}s%b"
+  fi
+}
+
+function prompt_will_precmd {
+  setopt LOCAL_OPTIONS
+  unsetopt XTRACE KSH_ARRAYS
+  # Get Git repository information.
+  if (( $+functions[git-info] )); then
+    git_status=git-info
+  fi
+  timer_result=$(($SECONDS-$start_time))
+  if [[ $timer_result -gt 1 ]]; then
+    calc_elapsed_time
+  fi
+  start_time=$SECONDS
+}
+
+function prompt_will_setup {
+  setopt LOCAL_OPTIONS
+  unsetopt XTRACE KSH_ARRAYS
+  prompt_opts=(cr percent subst)
+
+  # Load required functions.
+  autoload -Uz add-zsh-hook
+
+  # Add hook for calling git-info before each command.
+  add-zsh-hook preexec prompt_will_preexec
+  add-zsh-hook precmd prompt_will_precmd
+
+  # Themeing:
+  # https://github.com/sorin-ionescu/prezto/tree/master/modules/git
+  zstyle ':prezto:module:git:info' verbose yes
+  zstyle ':prezto:module:editor:info:completing' format '%B%F{red}...%f%b'
+  zstyle ':prezto:module:editor:info:keymap:primary' format '%B%F{blue}%f%b'
+  zstyle ':prezto:module:editor:info:keymap:primary:overwrite' format '%F{red}♺%f'
+  zstyle ':prezto:module:editor:info:keymap:alternate' format '%B%F{red}❮%f%b'
+  zstyle ':prezto:module:git:info:action' format ' ! %s'
+  zstyle ':prezto:module:git:info:added' format ' %a✚' #testing 
+  zstyle ':prezto:module:git:info:ahead' format ' ⬆'
+  zstyle ':prezto:module:git:info:behind' format ' ⬇'
+  zstyle ':prezto:module:git:info:branch' format '⭠ %b'
+  zstyle ':prezto:module:git:info:clean' format 'true'
+  zstyle ':prezto:module:git:info:commit' format ' ➦ %.7c'
+  zstyle ':prezto:module:git:info:deleted' format '%d✖'
+  zstyle ':prezto:module:git:info:dirty' format '±'
+  # zstyle ':prezto:module:git:info:indexed' format ' %ii'
+  # zstyle ':prezto:module:git:info:unindexed' format ' $=%Iui'
+  zstyle ':prezto:module:git:info:modified' format ' %m*'
+  zstyle ':prezto:module:git:info:position' format ' %p'
+  # zstyle ':prezto:module:git:info:remote' format ' %R'
+  zstyle ':prezto:module:git:info:renamed' format ' %r➙'
+  zstyle ':prezto:module:git:info:stashed' format ' s'
+  zstyle ':prezto:module:git:info:unmerged' format ' %U═'
+  zstyle ':prezto:module:git:info:untracked' format ' %u?'
+  zstyle ':prezto:module:git:info:keys' format \
+    'prompt' '$(coalesce "%b" "%p" "%c")%s' \
+    'status' '%D%%a%A%B%d%i%I%m%r%s%S%U%u' \
+    'clean' '%C'
+
+  # Define prompts.
+  PROMPT='%{%f%b%k%}$(build_prompt) ${editor_info[keymap]}'
+  RPROMPT='%D{%L:%M:%S %p}'
+  SPROMPT='zsh: correct %F{red}%R%f to %F{green}%r%f [nyae]? '
+}
+
+prompt_will_setup "$@"

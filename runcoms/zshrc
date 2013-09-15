@@ -1,14 +1,30 @@
-#
-# Executes commands at the start of an interactive session.
-#
-# Authors:
-#   Sorin Ionescu <sorin.ionescu@gmail.com>
-#
-
 # Source Prezto.
 if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
   source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
 fi
 
-# Customize to your needs...
+source $HOME/.aliases
+
+DEFAULT_USER="willhoag"
+
+# Adding a virtualenv prompt in my_agnoster theme
+VIRTUAL_ENV_DISABLE_PROMPT=1
+
+# Setting PATH for Heroku Toolbelt (https://www.heroku.com)
+export PATH=/usr/local/heroku/bin:$PATH
+
+# Added this so I had access to http://www.yeoman.io
+export PATH=/usr/local/share/npm/bin:$PATH
+
+# Setting usr/local/bin before usr/bin so it finds brew apps before system ones
+export PATH=/usr/local/bin:$PATH
+
+# Setting PYTHONPATH for Python 2.7
+export PYTHONPATH=/usr/local/lib/python2.7/site-packages:$PYTHONPATH
+
+# virtualenv
+export WORKON_HOME=$HOME/.virtualenvs
+
+# Source  virtualenvwrapper.sh after assigning paths
+source /usr/local/bin/virtualenvwrapper.sh
 
