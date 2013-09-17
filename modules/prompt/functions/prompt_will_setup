@@ -155,13 +155,14 @@ function prompt_will_setup {
   zstyle ':prezto:module:editor:info:keymap:primary:overwrite' format '%F{red}♺%f'
   zstyle ':prezto:module:editor:info:keymap:alternate' format '%B%F{red}❮%f%b'
   zstyle ':prezto:module:git:info:action' format ' ! %s'
-  zstyle ':prezto:module:git:info:added' format ' %a✚' #testing 
-  zstyle ':prezto:module:git:info:ahead' format ' ⬆'
-  zstyle ':prezto:module:git:info:behind' format ' ⬇'
+  zstyle ':prezto:module:git:info:added' format ' %a✚'
+  zstyle ':prezto:module:git:info:ahead' format '⬆'
+  zstyle ':prezto:module:git:info:behind' format '⬇'
   zstyle ':prezto:module:git:info:branch' format '⭠ %b'
   zstyle ':prezto:module:git:info:clean' format 'true'
   zstyle ':prezto:module:git:info:commit' format ' ➦ %.7c'
-  zstyle ':prezto:module:git:info:deleted' format '%d✖'
+  # was using %d instead of # but it was showing me the current directory instead of the deleted count
+  zstyle ':prezto:module:git:info:deleted' format ' #x'
   zstyle ':prezto:module:git:info:dirty' format '±'
   # zstyle ':prezto:module:git:info:indexed' format ' %ii'
   # zstyle ':prezto:module:git:info:unindexed' format ' $=%Iui'
