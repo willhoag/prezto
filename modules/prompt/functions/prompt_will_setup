@@ -6,7 +6,7 @@
 pmodload 'helper'
 
 CURRENT_BG='NONE'
-SEGMENT_SEPARATOR='⮀'
+SEGMENT_SEPARATOR=''
 
 # Begin a segment
 # Takes two arguments, background and foreground. Both can be omitted,
@@ -153,14 +153,14 @@ function prompt_will_setup {
   zstyle ':prezto:module:editor:info:completing' format '%B%F{red}...%f%b'
   zstyle ':prezto:module:editor:info:keymap:primary' format '%B%F{blue}%f%b'
   zstyle ':prezto:module:editor:info:keymap:primary:overwrite' format '%F{red}♺%f'
-  zstyle ':prezto:module:editor:info:keymap:alternate' format '%B%F{red}❮%f%b'
+  zstyle ':prezto:module:editor:info:keymap:alternate' format '%B%F{red}* %f%b'
   zstyle ':prezto:module:git:info:action' format ' ! %s'
   zstyle ':prezto:module:git:info:added' format ' %a✚'
   zstyle ':prezto:module:git:info:ahead' format '⬆'
   zstyle ':prezto:module:git:info:behind' format '⬇'
-  zstyle ':prezto:module:git:info:branch' format '⭠ %b'
+  zstyle ':prezto:module:git:info:branch' format '%b'
   zstyle ':prezto:module:git:info:clean' format 'true'
-  zstyle ':prezto:module:git:info:commit' format ' ➦ %.7c'
+  zstyle ':prezto:module:git:info:commit' format '%.7c'
   # was using %d instead of # but it was showing me the current directory instead of the deleted count
   zstyle ':prezto:module:git:info:deleted' format ' #x'
   zstyle ':prezto:module:git:info:dirty' format '±'
@@ -174,7 +174,7 @@ function prompt_will_setup {
   zstyle ':prezto:module:git:info:unmerged' format ' %U═'
   zstyle ':prezto:module:git:info:untracked' format ' %u?'
   zstyle ':prezto:module:git:info:keys' format \
-    'prompt' '$(coalesce "%b" "%p" "%c")%s' \
+    'prompt' '%c $(coalesce "%b" "%p" "%c")%s' \
     'status' '%D%%a%A%B%d%i%I%m%r%s%S%U%u' \
     'clean' '%C'
 
